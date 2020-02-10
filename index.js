@@ -29,7 +29,7 @@ app.get("/api/v1/basic", (req, res) => {
     });
 });
 
-app.get("/api/v1/detailed", (req, res) => {
+app.get("/api/v1/details", (req, res) => {
   fetch("https://get.client-ip.com/lookup")
     .then(response => {
       return response.json();
