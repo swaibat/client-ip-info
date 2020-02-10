@@ -1,15 +1,14 @@
 const express = require("express");
 const cors = require("cors");
-const fetch = require("node-fetch");
+const request = require("jsonrequest");
 const Bluebird = require("bluebird");
 var NodeGeocoder = require("node-geocoder");
 const countries = require("./api/assets/countries.json");
 
-fetch.Promise = Bluebird;
-
 const app = express();
 app.use(express.static("api/assets"));
 app.use(cors());
+
 var options = {
   provider: "google",
   httpAdapter: "https", // Default
@@ -17,58 +16,86 @@ var options = {
   formatter: null // 'gpx', 'string', ...
 };
 
+
+
+const ipInfo = (module.exports = function(type, token, callback) {
+  let url = null;
+
+  if (typeof token === "function") {
+    callback = token;
+    token = undefined;
+  }
+
+  if (typeof type === "function") {
+    callback = type;
+    type = "";
+  }
+
+  url = `https://get.client-ip.com/lookup`;
+
+  request(url, (err, body) => {
+    if (err && err.message && err.message.startsWith("Unexpected token")) {
+      err = null;
+    }
+    if (err) {
+      return callback(err);
+    }
+    callback(null, body);
+  });
+});
+
 var geocoder = NodeGeocoder(options);
 
 app.get("/api/v1/basic", (req, res) => {
-  fetch("https://get.client-ip.com/lookup")
-    .then(response => {
-      return response.json();
-    })
-    .then(myJson => {
-      res.send(myJson);
+    ipInfo((err, cLoc) => {
+      res.send(cLoc);
     });
 });
 
-app.get("/api/v1/details", (req, res) => {
-  fetch("https://get.client-ip.com/lookup")
-    .then(response => {
-      return response.json();
-    })
-    .then(myJson => {
-      const { latitude, longitude, clientIP } = myJson;
-      geocoder.reverse({ lat: latitude, lon: longitude }, function(
-        err,
-        payload
-      ) {
-        if (err) return res.status(400).send({ status: 400, message: err });
-        const {
-          formattedAddress,
-          latitude,
-          longitude,
-          country,
-          countryCode,
-          city,
-          administrativeLevels
-        } = payload[0];
-        const countryDetails = countries.find(
-          country => country.alpha2Code === countryCode
-        );
-        return res.status(200).send({
-          status: 200,
-          data: {
-            clientIP,
-            address: formattedAddress,
-            address2: administrativeLevels.level2long,
-            country,
-            countryCode,
-            city,
-            latitude,
-            longitude,
-            countryDetails: countryDetails
-          }
-        });
-      });
-    });
-});
+// app.get("/api/v1/details", (req, res) => {
+//   fetch("https://get.client-ip.com/lookup")
+//     .then(response => {
+//       return response.json();
+//     })
+//     .then(myJson => {
+//       const { latitude, longitude, clientIP } = myJson;
+//       geocoder.reverse({ lat: latitude, lon: longitude }, function(
+//         err,
+//         payload
+//       ) {
+//         if (err) return res.status(400).send({ status: 400, message: err });
+//         const {
+//           formattedAddress,
+//           latitude,
+//           longitude,
+//           country,
+//           countryCode,
+//           city,
+//           administrativeLevels
+//         } = payload[0];
+//         const countryDetails = countries.find(
+//           country => country.alpha2Code === countryCode
+//         );
+//         return res.status(200).send({
+//           status: 200,
+//           data: {
+//             clientIP,
+//             address: formattedAddress,
+//             address2: administrativeLevels.level2long,
+//             country,
+//             countryCode,
+//             city,
+//             latitude,
+//             longitude,
+//             countryDetails: countryDetails
+//           }
+//         });
+//       });
+//     });
+// });
 
 app.listen(process.env.PORT || 3000);
+
+
+
+
