@@ -3,6 +3,7 @@ const cors = require("cors");
 const fetch = require("node-fetch");
 const Bluebird = require("bluebird");
 var NodeGeocoder = require("node-geocoder");
+const countries = require("./api/assets/countries.json");
 
 fetch.Promise = Bluebird;
 
@@ -34,8 +35,12 @@ app.get("/api/v1/detailed", (req, res) => {
       return response.json();
     })
     .then(myJson => {
-      const { latitude, longitude } = myJson;
-      geocoder.reverse({ lat: latitude, lon: longitude }, function(err, res) {
+      const { latitude, longitude, clientIP } = myJson;
+      geocoder.reverse({ lat: latitude, lon: longitude }, function(
+        err,
+        payload
+      ) {
+        if (err) return res.status(400).send({ status: 400, message: err });
         const {
           formattedAddress,
           latitude,
@@ -44,15 +49,23 @@ app.get("/api/v1/detailed", (req, res) => {
           countryCode,
           city,
           administrativeLevels
-        } = res[0];
-        console.log({
-          address: formattedAddress,
-          address2: administrativeLevels.level2long,
-          country,
-          countryCode,
-          city,
-          latitude,
-          longitude
+        } = payload[0];
+        const countryDetails = countries.find(
+          country => country.alpha2Code === countryCode
+        );
+        return res.status(200).send({
+          status: 200,
+          data: {
+            clientIP,
+            address: formattedAddress,
+            address2: administrativeLevels.level2long,
+            country,
+            countryCode,
+            city,
+            latitude,
+            longitude,
+            countryDetails: countryDetails
+          }
         });
       });
     });
