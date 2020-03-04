@@ -19,9 +19,12 @@
   "homepage": "https://github.com/swaibat/client-ip-info#readme",
   "dependencies": {
     "express": "^4.17.1",
+    "express-react-views": "^0.11.0",
     "jsonrequest": "^4.2.5",
     "node-geocoder": "^3.25.0",
     "nodemon": "^2.0.2",
+    "react": "^16.13.0",
+    "react-dom": "^16.13.0",
     "react-public-ip": "^1.0.0"
   },
   "devDependencies": {}
