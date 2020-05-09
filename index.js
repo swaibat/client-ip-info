@@ -3,6 +3,7 @@ const cors = require("cors");
 const request = require("jsonrequest");
 const Bluebird = require("bluebird");
 var NodeGeocoder = require("node-geocoder");
+var path = require('path');
 const countries = require("./api/assets/countries.json");
 
 const app = express();
@@ -51,8 +52,16 @@ app.get("/api/v1/basic", (req, res) => {
       res.send(cLoc);
     });
 });
-
-// app.get("/api/v1/details", (req, res) => {
+app.use(express.static(path.join(__dirname)));
+// app.get('/', function(req, res) {
+//   return res.send({status:200, data:req.query})
+// });
+app.post('/', function(req, res) {
+    console.log('why', req.query);
+    return res.redirect('/hello');
+    // return res.send({status:200, data:req.query})
+});
+// app.get("/api/v1/details",  (req, res) => {
 //   fetch("https://get.client-ip.com/lookup")
 //     .then(response => {
 //       return response.json();

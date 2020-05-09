@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Sample Site</title>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <style>
+        body { padding-top:50px; }
+    </style>
+</head>
+<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+<script>
+    $(document).ready(async function(){
+        const res = await axios.get('https://get.client-ip.com/lookup');
+        axios.post('http://localhost:3000',{hello:'world'}, {params: res.data })
+    })
+    </script>
+</html>
